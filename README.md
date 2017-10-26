@@ -1,1 +1,1 @@
-# nodeJS_Blog_App
+# nodeJS_BOILERPLATE
