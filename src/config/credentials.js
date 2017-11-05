@@ -1,4 +1,4 @@
 module.exports = {
-  username: "yogesh_rathod",
-  password: "yogesh_123"
+  username: 'your mongo lab database username',
+  password: "your mongo lab database password"
 }

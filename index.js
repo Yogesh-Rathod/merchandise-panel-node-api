@@ -1,13 +1,17 @@
 // ========== Global Dependencies ============ // 
 const express = require('express');
 const app = express();
+const compression = require('compression');
+const errorHandler = require('errorhandler');
 const mongoose = require('mongoose');
 mongoose.Promise = require('bluebird');
 const cors = require('cors');
 const morgan = require('morgan'); 
 const bodyParser = require('body-parser');
 const helmet = require('helmet');
-
+const session = require('express-session');
+const flash = require('express-flash');
+const path = require('path');
 
 // ========== Local Dependencies ============= //
 const config = require('./src/config');
@@ -36,11 +40,22 @@ const PORT = process.env.PORT || 3000;
 
 // ========== Setting Up Middlewares ============= //
 app.use(cors(corsOptions));
+app.use(compression());
 app.use(express.static('public', staticOptions));
 app.use(morgan('dev'));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(helmet());
+
+app.use(session({
+  resave: true,
+  saveUninitialized: true,
+  secret: 'secret'
+}));
+app.use(flash());
+
+app.set('views', path.join(__dirname, '/src/views'));
+app.set('view engine', 'pug');
 
 // ========== Connect To MongoDB through Mongoose ============= //
 mongoose.connect(config.dbConnection(), { useMongoClient: true } );
@@ -75,8 +90,26 @@ process.on('SIGINT', function () {
 
 // ========== Home Page Routing ============= //
 app.get('/', function (req, res) {
-  res.json('Hello World! I am up and Running!');
+  req.flash('errors', 'There are errors');
+  req.flash('info', 'There are errors');
+  res.render('account/login', {
+    title: 'Login'
+  });
 });
+
+app.get('/login', (req, res) => {
+  if (req.user) {
+    return res.redirect('/');
+  }
+  res.render('account/login', {
+    title: 'Login'
+  });
+});
+
+/**
+ * Error Handler.
+ */
+app.use(errorHandler());
 
 // ========== Listen to Requests ============= //
 app.listen(PORT, () => {

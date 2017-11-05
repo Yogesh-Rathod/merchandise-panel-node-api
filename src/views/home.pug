@@ -1,0 +1,34 @@
+extends layout
+
+block content
+  h1 A Social Media App
+  p.lead A demo app built with NodeJS
+  hr
+
+  h3 Admin Area
+
+  h4 List of all registered users
+
+  if users
+    table.table.table-bordered
+      thead
+        tr
+          th Name
+          th Email
+          th Location
+          th Register Date
+          th Website
+      tbody
+        each user in users
+          tr
+            td= user.profile.name
+            td= user.email
+            td= user.profile.location
+            td= user.createdAt
+            td= user.profile.website
+
+  else
+    table.table.table-bordered
+      thead
+        tr
+          th There are no users for now!
