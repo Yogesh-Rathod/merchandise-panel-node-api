@@ -2,7 +2,7 @@
 let credentials = require('./credentials');
 
 // == DB String for Local DB Connection == //
-let databaseString = "mongodb://localhost/merchandisePanel";
+let databaseString = "mongodb://" + credentials.username + ":" + credentials.password + "@ds157325.mlab.com:57325/merchandise-panel";
 
 if (process.env.NODE_ENV) {
   // == DB String for Mongo Lab DB Connection (Production/QA Env) == //

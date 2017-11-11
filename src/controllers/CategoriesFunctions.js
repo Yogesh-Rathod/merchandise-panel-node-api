@@ -21,6 +21,7 @@ app.use(validator());
 module.exports = {
 
   getAllCategories: (req, res) => {
+    console.log("getAllCategories");
 
     let query = Categories.find();
     if (req.query.name) {
@@ -31,7 +32,7 @@ module.exports = {
       if (err) {
         return res.status(500).json(err);
       }
-	const response = {
+      const response = {
         status: 200,
         message: "Everything's Fine",
         data: categories
@@ -40,8 +41,9 @@ module.exports = {
     });
   },
 
-  
+
   getSingleCategory: (req, res) => {
+    console.log("getSingleCategory");
     Categories.find({ _id: req.params.id }).exec((err, category) => {
       if (err) {
         return res.json(err);
