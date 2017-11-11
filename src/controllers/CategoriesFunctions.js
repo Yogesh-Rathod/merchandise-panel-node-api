@@ -21,8 +21,6 @@ app.use(validator());
 module.exports = {
 
   getAllCategories: (req, res) => {
-    console.log("getAllCategories");
-
     let query = Categories.find();
     if (req.query.name) {
       query = Categories.find({ name: { "$regex": req.query.name }  });
@@ -43,7 +41,6 @@ module.exports = {
 
 
   getSingleCategory: (req, res) => {
-    console.log("getSingleCategory");
     Categories.find({ _id: req.params.id }).exec((err, category) => {
       if (err) {
         return res.json(err);
