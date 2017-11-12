@@ -1,5 +1,3 @@
-import { String } from 'core-js/library/web/timers';
-
 const mongoose = require('mongoose');
 
 const vendorsSchema = mongoose.Schema({
@@ -21,9 +19,7 @@ const vendorsSchema = mongoose.Schema({
     type: String,
     required: 'Email is required'
   },
-  phone: {
-    type: [String]
-  },
+  phone: [String],
   website: String,
   listingFee: String,
   address: String,
@@ -42,4 +38,4 @@ const vendorsSchema = mongoose.Schema({
 
 const Vendors = mongoose.model('Vendors', vendorsSchema);
 
-module.exports = Vendors;
+module.exports = Vendors; 
