@@ -78,6 +78,8 @@ router.post('/updateVendor/:id', vendorFunctions.updateAVendor);
 
 router.get('/deleteVendor/:id', vendorFunctions.deleteVendor);
 
+router.post('/deleteMultipleVendors', vendorFunctions.deleteMultipleVendors);
+
 
 module.exports = router;
 

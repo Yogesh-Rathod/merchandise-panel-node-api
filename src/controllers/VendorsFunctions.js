@@ -65,17 +65,29 @@ module.exports = {
     if (errors) {
       res.status(400).json(errors);
     } else {
-      const vendor = new Vendors(req.body);
-      vendor.save((err, success) => {
+      Vendors.findOne({ email: req.body.email }).exec((err, success) => {
         if (err) {
           return res.status(500).json(err);
+        } else if (success) {
+          const response = {
+            status: 401,
+            message: "User already exists"
+          };
+          res.json(response);
+        } else if (!success) {
+          const vendor = new Vendors(req.body);
+          vendor.save((err, success) => {
+            if (err) {
+              return res.status(500).json(err);
+            }
+            const response = {
+              status: 200,
+              message: "Everything's Fine",
+              data: success
+            };
+            res.json(response);
+          });
         }
-        const response = {
-          status: 200,
-          message: "Everything's Fine",
-          data: success
-        };
-        res.json(response);
       });
     }
   },
@@ -117,6 +129,30 @@ module.exports = {
       };
       res.json(response);
     });
+  },
+
+  deleteMultipleVendors: (req, res) => {
+    const idsArray = req.body.ids;
+    if (idsArray.length === 0) {
+      const response = {
+        status: 402,
+        message: "Empty Array of Ids.",
+        data: []
+      };
+      res.json(response);
+    } else {
+      Vendors.deleteMany({ _id: { $in: idsArray } }, (err, success) => {
+        if (err) {
+          return res.status(500).json(err);
+        }
+        const response = {
+          status: 200,
+          message: "Everything's Fine",
+          data: success
+        };
+        res.json(response);
+      });
+    }
   }
 
 
