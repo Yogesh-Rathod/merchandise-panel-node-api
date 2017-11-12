@@ -22,8 +22,9 @@ module.exports = {
 
   getAllVendors: (req, res) => {
     let query = Vendors.find();
-    if (req.query.name) {
-      query = Vendors.find({ name: { "$regex": req.query.name } });
+    const searchTerm = req.query.name;
+    if (searchTerm) {
+      query = Vendors.find({ '$or': [{ firstName: { "$regex": searchTerm } }, { lastName: { "$regex": searchTerm }}]});
     }
 
     query.exec((err, vendors) => {
