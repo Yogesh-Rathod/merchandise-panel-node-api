@@ -12,6 +12,8 @@ const async = require('async');
 // ========== Local Dependencies ============= //
 const Vendors = require('../model/Vendors');
 
+const sendMail = require('./mailer');
+
 // ========== Setting Up Middlewares ============= //
 
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -80,6 +82,7 @@ module.exports = {
             if (err) {
               return res.status(500).json(err);
             }
+            sendMail(vendor.email, 'vendorAddEmail');
             const response = {
               status: 200,
               message: "Everything's Fine",
@@ -107,6 +110,7 @@ module.exports = {
         if (err) {
           return res.status(500).json(err);
         }
+        sendMail(success.email, 'vendorInfoUpdated');
         const response = {
           status: 200,
           message: "Everything's Fine",
