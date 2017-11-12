@@ -1,9 +1,11 @@
-// ========== Global Dependencies ============ // 
+// ========== Global Dependencies ============ // vendorUpload
 const express = require('express')
 const app = express();
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const multer = require('multer');
+const upload = multer({ dest: 'uploads/vendors' });
 
 // ========== Local Dependencies ============= //
 const Categories = require('../model/Categories');
@@ -74,11 +76,15 @@ router.get('/vendor/:id', vendorFunctions.getSingleVendor);
 
 router.post('/vendor', vendorFunctions.addAVendor);
 
+router.post('/bulkVendorUpload', upload.single('vendorUpload'), vendorFunctions.bulkVendorUpload);
+
 router.post('/updateVendor/:id', vendorFunctions.updateAVendor);
 
 router.get('/deleteVendor/:id', vendorFunctions.deleteVendor);
 
 router.post('/deleteMultipleVendors', vendorFunctions.deleteMultipleVendors);
+
+//  ==  Products Routes
 
 
 module.exports = router;
