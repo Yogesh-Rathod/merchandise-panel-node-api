@@ -21,7 +21,7 @@ const routes = require('./src/controllers');
 // ========== Config Options For Middlewares ============= //
 
 const corsOptions = {
-  origin: 'http://localhost:4200',
+  origin: ['http://localhost:4200', 'http://localhost:4300'],
   credentials: false,
   optionsSuccessStatus: 200
 };
