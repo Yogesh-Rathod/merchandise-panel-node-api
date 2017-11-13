@@ -86,6 +86,8 @@ router.get('/deleteVendor/:id', vendorFunctions.deleteVendor);
 
 router.post('/deleteMultipleVendors', vendorFunctions.deleteMultipleVendors);
 
+router.post('/deactivateMultipleVendors', vendorFunctions.deactivateMultipleVendors);
+
 //  ==  Products Routes
 
 router.get('/products', productsFunctions.getAllProducts);

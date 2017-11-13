@@ -195,6 +195,31 @@ module.exports = {
         res.json(response);
       });
     }
+  },
+
+  deactivateMultipleVendors: (req, res) => {
+    const idsArray = req.body.ids;
+    console.log("idsArray ", idsArray);
+    if (idsArray.length === 0) {
+      const response = {
+        status: 402,
+        message: "Empty Array of Ids.",
+        data: []
+      };
+      res.json(response);
+    } else {
+      Vendors.update({ _id: { $in: idsArray } }, { status: false }, { multi: true }, (err, success) => {
+        if (err) {
+          return res.status(500).json(err);
+        }
+        const response = {
+          status: 200,
+          message: "Everything's Fine",
+          data: success
+        };
+        res.json(response);
+      });
+    }
   }
 
 
