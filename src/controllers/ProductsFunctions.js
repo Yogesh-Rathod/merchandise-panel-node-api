@@ -1,5 +1,5 @@
 // ========== Global Dependencies ============ //
-const express = require('express')
+const express = require('express');
 const app = express();
 const mongoose = require('mongoose');
 mongoose.Promise = require('bluebird');
@@ -11,7 +11,7 @@ const _ = require('lodash');
 const async = require('async');
 
 // ========== Local Dependencies ============= //
-const Vendors = require('../model/Vendors');
+const Products = require('../model/Products');
 
 const sendMail = require('./mailer');
 
@@ -23,75 +23,78 @@ app.use(validator());
 
 module.exports = {
 
-  getAllVendors: (req, res) => {
-    let query = Vendors.find();
-    const searchTerm = req.query.name;
-    if (searchTerm) {
-      query = Vendors.find({ '$or': [{ firstName: { "$regex": searchTerm, '$options': 'i' } }, { lastName: { "$regex": searchTerm, '$options': 'i' }}]});
+  getAllProducts: (req, res) => {
+    let query = Products.find();
+
+    // Get All Query Params in 1 Object
+    var queryConditions = {};
+    if (req.query.name) {
+      queryConditions.name = { $regex: req.query.name, $options: "i" };
+    }
+    if (req.query.status && req.query.status !== 'all') {
+      queryConditions.status = req.query.status;
+    }
+    if (req.query.id) {
+      queryConditions._id = req.query.id;
+    }
+    if (req.query.vendor && req.query.vendor !== 'all') {
+      queryConditions.vendor = req.query.vendor;
+    }
+    
+    // Apply Filters
+    if (!_.isEmpty(queryConditions)) {
+      query = Products.find(queryConditions);
     }
 
-    query.exec((err, vendors) => {
+    query.exec((err, products) => {
       if (err) {
         return res.status(500).json(err);
       }
       const response = {
         status: 200,
         message: "Everything's Fine",
-        data: vendors
+        data: products
       };
       res.json(response);
     });
   },
 
 
-  getSingleVendor: (req, res) => {
-    Vendors.find({ _id: req.params.id }).exec((err, vendor) => {
+  getSingleProduct: (req, res) => {
+    Products.find({ _id: req.params.id }).exec((err, product) => {
       if (err) {
         return res.json(err);
       }
       const response = {
         status: 200,
         message: "Everything's Fine",
-        data: vendor
+        data: product
       };
       res.json(response);
     });
   },
 
-  addAVendor: (req, res) => {
-    req.checkBody("firstName", "First Name is required").notEmpty();
-    req.checkBody("lastName", "Last Name is required.").notEmpty();
-    req.checkBody("suffix", "Suffix is required.").notEmpty();
-    req.checkBody("email", "email is wrong.").isEmail();
-    req.checkBody("status", "status is required.").notEmpty();
+  addAProduct: (req, res) => {
+    req.checkBody("name", "Name is required").notEmpty();
+    req.checkBody("shortDescription", "Short Description is required.").notEmpty();
+    req.checkBody("status", "Status is required.").notEmpty();
+    req.checkBody("MrpPrice", "MRP Price is required.").notEmpty();
+    req.checkBody("vendor", "Vendor is required.").notEmpty();
     const errors = req.validationErrors();
     if (errors) {
       res.status(400).json(errors);
     } else {
-      Vendors.findOne({ email: req.body.email }).exec((err, success) => {
+      const product = new Products(req.body);
+      product.save((err, success) => {
         if (err) {
           return res.status(500).json(err);
-        } else if (success) {
-          const response = {
-            status: 401,
-            message: "User already exists"
-          };
-          res.json(response);
-        } else if (!success) {
-          const vendor = new Vendors(req.body);
-          vendor.save((err, success) => {
-            if (err) {
-              return res.status(500).json(err);
-            }
-            sendMail(vendor.email, 'vendorAddEmail');
-            const response = {
-              status: 200,
-              message: "Everything's Fine",
-              data: success
-            };
-            res.json(response);
-          });
         }
+        const response = {
+          status: 200,
+          message: "Everything's Fine",
+          data: success
+        };
+        res.json(response);
       });
     }
   },
@@ -106,7 +109,7 @@ module.exports = {
         async.series([
           (callback) => {
             _.forEach(success, (vendorInfo, index) => {
-              const checkParameters = vendorInfo.firstName !== '' && vendorInfo.lastName !== '' && vendorInfo.suffix !== '' && vendorInfo.status !== '' && vendorInfo.email !== '' ;
+              const checkParameters = vendorInfo.firstName !== '' && vendorInfo.lastName !== '' && vendorInfo.suffix !== '' && vendorInfo.status !== '' && vendorInfo.email !== '';
               if (checkParameters) {
 
                 const vendor = new Vendors(vendorInfo);
@@ -121,34 +124,33 @@ module.exports = {
             callback(null, incorrectRows);
           }
         ],
-        function (err, results) {
-          const response = {
-            status: 200,
-            message: "Everything's Fine",
-            incorrectRowIndex: results[0]
-          };
-          res.json(response);
-        });
+          function (err, results) {
+            const response = {
+              status: 200,
+              message: "Everything's Fine",
+              incorrectRowIndex: results[0]
+            };
+            res.json(response);
+          });
       }
     });
   },
 
-  updateAVendor: (req, res) => {
-    req.checkBody("firstName", "First Name is required").notEmpty();
-    req.checkBody("lastName", "Last Name is required.").notEmpty();
-    req.checkBody("suffix", "Suffix is required.").notEmpty();
-    req.checkBody("email", "email is wrong.").isEmail();
-    req.checkBody("status", "status is required.").notEmpty();
+  updateAProduct: (req, res) => {
+    req.checkBody("name", "Name is required").notEmpty();
+    req.checkBody("shortDescription", "Short Description is required.").notEmpty();
+    req.checkBody("status", "Status is required.").notEmpty();
+    req.checkBody("MrpPrice", "MRP Price is required.").notEmpty();
+    req.checkBody("vendor", "Vendor is required.").notEmpty();
     const errors = req.validationErrors();
     if (errors) {
       res.status(400).json(errors);
     } else {
-      const updateVendor = req.body;
-      Vendors.findByIdAndUpdate({ _id: req.params.id }, { $set: updateVendor }).exec((err, success) => {
+      const updateProduct = req.body;
+      Products.findByIdAndUpdate({ _id: req.params.id }, { $set: updateProduct }).exec((err, success) => {
         if (err) {
           return res.status(500).json(err);
         }
-        sendMail(success.email, 'vendorInfoUpdated');
         const response = {
           status: 200,
           message: "Everything's Fine",
@@ -159,8 +161,8 @@ module.exports = {
     }
   },
 
-  deleteVendor: (req, res) => {
-    Vendors.findByIdAndRemove({ _id: req.params.id }).exec((err, success) => {
+  deleteProduct: (req, res) => {
+    Products.findByIdAndRemove({ _id: req.params.id }).exec((err, success) => {
       if (err) {
         return res.status(500).json(err);
       }

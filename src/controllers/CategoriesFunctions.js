@@ -23,7 +23,7 @@ module.exports = {
   getAllCategories: (req, res) => {
     let query = Categories.find();
     if (req.query.name) {
-      query = Categories.find({ name: { "$regex": req.query.name }  });
+      query = Categories.find({ name: { "$regex": req.query.name, '$options': 'i' }  });
     }
 
     query.exec((err, categories) => {

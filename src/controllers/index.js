@@ -14,6 +14,8 @@ const categoryFunctions = require('./CategoriesFunctions');
 
 const vendorFunctions = require('./VendorsFunctions');
 
+const productsFunctions = require('./ProductsFunctions.js');
+
 // ========== Setting Up Middlewares ============= //
 
 // ========== Auth Route to get JWT token ============= //
@@ -86,6 +88,15 @@ router.post('/deleteMultipleVendors', vendorFunctions.deleteMultipleVendors);
 
 //  ==  Products Routes
 
+router.get('/products', productsFunctions.getAllProducts);
+
+router.get('/product/:id', productsFunctions.getSingleProduct);
+
+router.post('/product', productsFunctions.addAProduct);
+
+router.post('/updateProduct/:id', productsFunctions.updateAProduct);
+
+router.get('/deleteProduct/:id', productsFunctions.deleteProduct);
 
 module.exports = router;
 
