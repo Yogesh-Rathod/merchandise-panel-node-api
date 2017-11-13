@@ -59,4 +59,4 @@ typings/
 
 
 # Ignore Credentials File
-src/config/credentials.js
+# src/config/credentials.js
