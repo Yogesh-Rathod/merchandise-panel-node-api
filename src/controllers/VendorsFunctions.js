@@ -6,6 +6,7 @@ mongoose.Promise = require('bluebird');
 const bodyParser = require('body-parser');
 const validator = require('express-validator');
 const convertExcel = require('excel-as-json').processFile;
+var fs = require('fs');
 
 const _ = require('lodash');
 const async = require('async');
@@ -103,34 +104,48 @@ module.exports = {
         return res.status(500).json(err);
       } else {
         const incorrectRows = [];
+        const successFullRows = [];
         async.series([
           (callback) => {
             _.forEach(success, (vendorInfo, index) => {
               const checkParameters = vendorInfo.firstName !== '' && vendorInfo.lastName !== '' && vendorInfo.suffix !== '' && vendorInfo.status !== '' && vendorInfo.email !== '' ;
               if (checkParameters) {
-
                 const vendor = new Vendors(vendorInfo);
                 vendor.save((err, success) => {
                   if (err) {
                   }
                 });
+                successFullRows.push(index);
               } else {
                 incorrectRows.push(index);
               }
             });
-            callback(null, incorrectRows);
+
+            const allRowsInfo = {
+              incorrectRows: incorrectRows,
+              successFullRows: successFullRows
+            };
+            callback(null, allRowsInfo);
           }
         ],
         function (err, results) {
           const response = {
             status: 200,
             message: "Everything's Fine",
-            incorrectRowIndex: results[0]
+            incorrectRowIndex: results
           };
           res.json(response);
         });
       }
     });
+    // Delete Uploaded File from System
+    try {
+      fs.unlinkSync(req.file.path);
+    } catch (e) {
+      console.log("catch");
+      //error deleting the file
+    }
+
   },
 
   updateAVendor: (req, res) => {
