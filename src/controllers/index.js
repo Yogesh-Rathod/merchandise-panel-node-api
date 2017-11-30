@@ -96,6 +96,8 @@ router.get('/product/:id', productsFunctions.getSingleProduct);
 
 router.post('/product', productsFunctions.addAProduct);
 
+router.post('/bulkProductUpload', upload.single('productUpload'), productsFunctions.bulkProductUpload);
+
 router.post('/updateProduct/:id', productsFunctions.updateAProduct);
 
 router.get('/deleteProduct/:id', productsFunctions.deleteProduct);

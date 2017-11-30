@@ -6,7 +6,7 @@ mongoose.Promise = require('bluebird');
 const bodyParser = require('body-parser');
 const validator = require('express-validator');
 const convertExcel = require('excel-as-json').processFile;
-var fs = require('fs');
+const fs = require('fs');
 
 const _ = require('lodash');
 const async = require('async');
@@ -109,23 +109,21 @@ module.exports = {
           (callback) => {
             _.forEach(success, (vendorInfo, index) => {
               const checkParameters = vendorInfo.firstName !== '' && vendorInfo.lastName !== '' && vendorInfo.suffix !== '' && vendorInfo.status !== '' && vendorInfo.email !== '' ;
-              if (checkParameters) {
-                const vendor = new Vendors(vendorInfo);
-                vendor.save((err, success) => {
-                  if (err) {
-                  }
-                });
-                successFullRows.push(index);
-              } else {
+              if (!checkParameters) {
                 incorrectRows.push(index);
               }
             });
-
-            const allRowsInfo = {
-              incorrectRows: incorrectRows,
-              successFullRows: successFullRows
-            };
-            callback(null, allRowsInfo);
+            if (incorrectRows.length === 0 ) {
+              _.forEach(success, (vendorInfo, index) => {
+                console.log("vendorInfo ", vendorInfo);
+                const vendor = new Vendors(vendorInfo);
+                vendor.save((err, success) => {
+                 if (err) {
+                 }
+               });
+              });
+            }
+            callback(null, incorrectRows);
           }
         ],
         function (err, results) {
@@ -135,6 +133,7 @@ module.exports = {
             incorrectRowIndex: results
           };
           res.json(response);
+          fs.unlink(req.file.path);
         });
       }
     });

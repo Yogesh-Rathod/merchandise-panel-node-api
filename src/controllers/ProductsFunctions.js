@@ -6,6 +6,7 @@ mongoose.Promise = require('bluebird');
 const bodyParser = require('body-parser');
 const validator = require('express-validator');
 const convertExcel = require('excel-as-json').processFile;
+const fs = require('fs');
 
 const _ = require('lodash');
 const async = require('async');
@@ -40,7 +41,7 @@ module.exports = {
     if (req.query.vendor && req.query.vendor !== 'all') {
       queryConditions.vendor = req.query.vendor;
     }
-    
+
     // Apply Filters
     if (!_.isEmpty(queryConditions)) {
       query = Products.find(queryConditions);
@@ -99,7 +100,7 @@ module.exports = {
     }
   },
 
-  bulkVendorUpload: (req, res) => {
+  bulkProductUpload: (req, res) => {
 
     convertExcel(req.file.path, undefined, undefined, (err, success) => {
       if (err) {
@@ -108,19 +109,21 @@ module.exports = {
         const incorrectRows = [];
         async.series([
           (callback) => {
-            _.forEach(success, (vendorInfo, index) => {
-              const checkParameters = vendorInfo.firstName !== '' && vendorInfo.lastName !== '' && vendorInfo.suffix !== '' && vendorInfo.status !== '' && vendorInfo.email !== '';
-              if (checkParameters) {
-
-                const vendor = new Vendors(vendorInfo);
-                vendor.save((err, success) => {
-                  if (err) {
-                  }
-                });
-              } else {
+            _.forEach(success, (productInfo, index) => {
+              const checkParameters = productInfo.name !== '' && productInfo.shortDescription !== '' && productInfo.status !== '' && productInfo.MrpPrice !== '' && productInfo.vendor !== '';
+              if (!checkParameters) {
                 incorrectRows.push(index);
               }
             });
+            if (incorrectRows.length === 0 ) {
+              _.forEach(success, (productInfo, index) => {
+                const product = new Products(productInfo);
+                product.save((err, success) => {
+                 if (err) {
+                 }
+               });
+              });
+            }
             callback(null, incorrectRows);
           }
         ],
@@ -131,6 +134,7 @@ module.exports = {
               incorrectRowIndex: results[0]
             };
             res.json(response);
+            fs.unlink(req.file.path);
           });
       }
     });

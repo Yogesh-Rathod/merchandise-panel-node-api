@@ -55,6 +55,7 @@ module.exports = {
   },
 
   addACategory: (req, res) => {
+    console.log("req ", req.body);
     req.checkBody("name", "Name is required").notEmpty();
     req.checkBody("breadCrumb", "BreadCrumb is required.").notEmpty();
     req.checkBody("status", "status is required.").notEmpty();
