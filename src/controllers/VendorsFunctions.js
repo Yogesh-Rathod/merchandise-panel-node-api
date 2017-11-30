@@ -108,17 +108,20 @@ module.exports = {
           (callback) => {
             _.forEach(success, (vendorInfo, index) => {
               const checkParameters = vendorInfo.firstName !== '' && vendorInfo.lastName !== '' && vendorInfo.suffix !== '' && vendorInfo.status !== '' && vendorInfo.email !== '' ;
-              if (checkParameters) {
-
-                const vendor = new Vendors(vendorInfo);
-                vendor.save((err, success) => {
-                  if (err) {
-                  }
-                });
-              } else {
+              if (!checkParameters) {
                 incorrectRows.push(index);
               }
             });
+            if (incorrectRows.length === 0 ) {
+              _.forEach(success, (vendorInfo, index) => {
+                console.log("vendorInfo ", vendorInfo);
+                const vendor = new Vendors(vendorInfo);
+                vendor.save((err, success) => {
+                 if (err) {
+                 }
+               });
+              });
+            }
             callback(null, incorrectRows);
           }
         ],

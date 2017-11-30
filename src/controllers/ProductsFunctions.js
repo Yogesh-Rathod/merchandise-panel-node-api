@@ -111,17 +111,19 @@ module.exports = {
           (callback) => {
             _.forEach(success, (productInfo, index) => {
               const checkParameters = productInfo.name !== '' && productInfo.shortDescription !== '' && productInfo.status !== '' && productInfo.MrpPrice !== '' && productInfo.vendor !== '';
-              if (checkParameters) {
-
-                const product = new Products(productInfo);
-                product.save((err, success) => {
-                  if (err) {
-                  }
-                });
-              } else {
+              if (!checkParameters) {
                 incorrectRows.push(index);
               }
             });
+            if (incorrectRows.length === 0 ) {
+              _.forEach(success, (productInfo, index) => {
+                const product = new Products(productInfo);
+                product.save((err, success) => {
+                 if (err) {
+                 }
+               });
+              });
+            }
             callback(null, incorrectRows);
           }
         ],
