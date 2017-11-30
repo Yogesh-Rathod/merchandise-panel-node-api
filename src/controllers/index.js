@@ -102,6 +102,8 @@ router.post('/updateProduct/:id', productsFunctions.updateAProduct);
 
 router.get('/deleteProduct/:id', productsFunctions.deleteProduct);
 
+router.post('/exportProducts', productsFunctions.exportProducts);
+
 module.exports = router;
 
 

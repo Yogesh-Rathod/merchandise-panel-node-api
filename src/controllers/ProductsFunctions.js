@@ -7,6 +7,7 @@ const bodyParser = require('body-parser');
 const validator = require('express-validator');
 const convertExcel = require('excel-as-json').processFile;
 const fs = require('fs');
+const json2xls = require('json2xls');
 
 const _ = require('lodash');
 const async = require('async');
@@ -59,7 +60,6 @@ module.exports = {
       res.json(response);
     });
   },
-
 
   getSingleProduct: (req, res) => {
     Products.find({ _id: req.params.id }).exec((err, product) => {
@@ -163,6 +163,40 @@ module.exports = {
         res.json(response);
       });
     }
+  },
+
+  exportProducts: (req, res) => {
+    console.log("req BODY", req.body);
+
+    const productIds = req.body.productIds;
+    if (productIds.length === 0) {
+      const response = {
+        status: 401,
+        message: "productIds cannot be blank",
+        data: []
+      };
+      res.status(400).json(response);
+    } else {
+      Products.find({
+        '_id': { $in:  productIds  }
+      }, function(err, docs){
+          console.log(docs);
+          res.send(docs);
+      });
+      // var json = {
+      //   foo: 'bar',
+      //   qux: 'moo',
+      //   poo: 123,
+      //   stux: new Date()
+      // };
+      // var xls = json2xls(json);
+      // fs.writeFileSync('uploads/export-products/data.xlsx', xls, 'binary');
+      // var file = __dirname + '/../../uploads/export-products/data.xlsx';
+      // res.download(file, () => {
+      //   fs.unlink(file);
+      // });
+    }
+
   },
 
   deleteProduct: (req, res) => {
