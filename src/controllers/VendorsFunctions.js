@@ -6,6 +6,7 @@ mongoose.Promise = require('bluebird');
 const bodyParser = require('body-parser');
 const validator = require('express-validator');
 const convertExcel = require('excel-as-json').processFile;
+const fs = require('fs');
 
 const _ = require('lodash');
 const async = require('async');
@@ -128,6 +129,7 @@ module.exports = {
             incorrectRowIndex: results[0]
           };
           res.json(response);
+          fs.unlink(req.file.path);
         });
       }
     });
