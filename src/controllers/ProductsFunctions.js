@@ -166,10 +166,8 @@ module.exports = {
   },
 
   exportProducts: (req, res) => {
-    console.log("req BODY", req.body);
-
     const productIds = req.body.productIds;
-    if (productIds.length === 0) {
+    if (!productIds || productIds.length === 0) {
       const response = {
         status: 401,
         message: "productIds cannot be blank",
@@ -179,21 +177,36 @@ module.exports = {
     } else {
       Products.find({
         '_id': { $in:  productIds  }
-      }, function(err, docs){
-          console.log(docs);
-          res.send(docs);
+      }, (err, products) => {
+        // console.log(products);
+        let newProd = [];
+        _.forEach(products, (product) => {
+          console.log("product ", product);
+          delete product._id;
+          newProd.push(product);
+          console.log("product ", product);
+        });
+        var xls = json2xls(newProd);
+        fs.writeFileSync('uploads/export-products/products.xlsx', xls, 'binary');
+        // var file = __dirname + '/../../uploads/export-products/products.xlsx';
+        // res.download(file, () => {
+          //   // fs.unlink(file);
+          // });
+        res.send(newProd);
       });
-      // var json = {
-      //   foo: 'bar',
-      //   qux: 'moo',
-      //   poo: 123,
-      //   stux: new Date()
-      // };
+      // var json = [
+      //   {
+      //     foo: 'bar',
+      //     qux: 'moo',
+      //     poo: 123,
+      //     stux: new Date()
+      //   }
+      // ];
       // var xls = json2xls(json);
       // fs.writeFileSync('uploads/export-products/data.xlsx', xls, 'binary');
       // var file = __dirname + '/../../uploads/export-products/data.xlsx';
       // res.download(file, () => {
-      //   fs.unlink(file);
+      //   // fs.unlink(file);
       // });
     }
 
