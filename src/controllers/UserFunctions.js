@@ -43,7 +43,10 @@ module.exports = {
         if (user) {
           bcrypt.compare(req.body.password, user.password, (err, matched) => {
             if (matched) {
-              const token = jwt.sign({}, config.jwtSecret, {});
+              const payload = {
+                payload: user.email
+              }
+              const token = jwt.sign(payload, config.jwtSecret, {});
               const response = {
                 status: 201,
                 message: "Everything's Fine",

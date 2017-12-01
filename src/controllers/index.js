@@ -18,13 +18,17 @@ const config = require('../config');
 
 // ========== Setting Up Middlewares ============= //
 
+jwt.sign({
+  data: 'foobar'
+}, 'secret', { expiresIn: '5s' });
+
 // ========== Auth Route to get JWT token ============= //
 router.post('/authenticate', userFunctions.authenticateUser);
 
 // ========== JWT check for All Routes ============= //
 router.use((req, res, next) => {
 
-  var token = req.body.token || req.query.token || req.headers['x-access-token'];
+  var token = req.body.token || req.query.token || req.headers['authorization'];
 
   if (token) {
 
