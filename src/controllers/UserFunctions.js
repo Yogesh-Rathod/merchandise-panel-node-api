@@ -92,7 +92,6 @@ module.exports = {
     });
   },
 
-
   getSingleUser: (req, res) => {
     Users.find({ _id: req.params.id }).exec((err, user) => {
       if (err) {
