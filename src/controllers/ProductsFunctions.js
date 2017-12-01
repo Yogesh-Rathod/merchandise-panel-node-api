@@ -13,8 +13,8 @@ const _ = require('lodash');
 const async = require('async');
 
 // ========== Local Dependencies ============= //
-const Products = require('../model/Products');
 
+const Products = require('../model/Products');
 const sendMail = require('./mailer');
 
 // ========== Setting Up Middlewares ============= //
@@ -177,37 +177,31 @@ module.exports = {
     } else {
       Products.find({
         '_id': { $in:  productIds  }
-      }, (err, products) => {
-        // console.log(products);
-        let newProd = [];
+      }).populate('vendor').exec((err, products) => {
+        let productsToExport = [];
         _.forEach(products, (product) => {
-          console.log("product ", product);
-          delete product._id;
-          newProd.push(product);
-          console.log("product ", product);
+          let productObject = {
+            "Name": product.name,
+            "Short Description": product.shortDescription,
+            "Full Description": product.fullDescription,
+            "Sku": product.sku,
+            "Status": product.status,
+            "Mrp Price": product.MrpPrice,
+            "Stock Quantity": product.stockQuantity,
+            "Images": product.images,
+            "Approval Status": product.approvalStatus,
+            "Vendor Name": product.vendor.firstName + ' ' + product.vendor.lastName,
+            "Vendor Email": product.vendor.email
+          };
+          productsToExport.push(productObject);
         });
-        var xls = json2xls(newProd);
+        var xls = json2xls(productsToExport);
         fs.writeFileSync('uploads/export-products/products.xlsx', xls, 'binary');
-        // var file = __dirname + '/../../uploads/export-products/products.xlsx';
-        // res.download(file, () => {
-          //   // fs.unlink(file);
-          // });
-        res.send(newProd);
+        var file = __dirname + '/../../uploads/export-products/products.xlsx';
+        res.download(file, () => {
+          fs.unlink(file);
+        });
       });
-      // var json = [
-      //   {
-      //     foo: 'bar',
-      //     qux: 'moo',
-      //     poo: 123,
-      //     stux: new Date()
-      //   }
-      // ];
-      // var xls = json2xls(json);
-      // fs.writeFileSync('uploads/export-products/data.xlsx', xls, 'binary');
-      // var file = __dirname + '/../../uploads/export-products/data.xlsx';
-      // res.download(file, () => {
-      //   // fs.unlink(file);
-      // });
     }
 
   },

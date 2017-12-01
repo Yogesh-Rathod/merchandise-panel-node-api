@@ -25,7 +25,8 @@ const productsSchema = mongoose.Schema({
   stockQuantity: Number,
   vendor: {
     type: Schema.Types.ObjectId,
-    required: 'Vendor ID is required'
+    required: 'Vendor ID is required',
+    ref: 'Vendors',
   },
   approvalStatus: {
     type: String,
