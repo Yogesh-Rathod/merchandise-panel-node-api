@@ -7,13 +7,14 @@ const bodyParser = require('body-parser');
 const validator = require('express-validator');
 const convertExcel = require('excel-as-json').processFile;
 const fs = require('fs');
+const json2xls = require('json2xls');
 
 const _ = require('lodash');
 const async = require('async');
 
 // ========== Local Dependencies ============= //
-const Products = require('../model/Products');
 
+const Products = require('../model/Products');
 const sendMail = require('./mailer');
 
 // ========== Setting Up Middlewares ============= //
@@ -59,7 +60,6 @@ module.exports = {
       res.json(response);
     });
   },
-
 
   getSingleProduct: (req, res) => {
     Products.find({ _id: req.params.id }).exec((err, product) => {
@@ -163,6 +163,47 @@ module.exports = {
         res.json(response);
       });
     }
+  },
+
+  exportProducts: (req, res) => {
+    const productIds = req.body.productIds;
+    if (!productIds || productIds.length === 0) {
+      const response = {
+        status: 401,
+        message: "productIds cannot be blank",
+        data: []
+      };
+      res.status(400).json(response);
+    } else {
+      Products.find({
+        '_id': { $in:  productIds  }
+      }).populate('vendor').exec((err, products) => {
+        let productsToExport = [];
+        _.forEach(products, (product) => {
+          let productObject = {
+            "Name": product.name,
+            "Short Description": product.shortDescription,
+            "Full Description": product.fullDescription,
+            "Sku": product.sku,
+            "Status": product.status,
+            "Mrp Price": product.MrpPrice,
+            "Stock Quantity": product.stockQuantity,
+            "Images": product.images,
+            "Approval Status": product.approvalStatus,
+            "Vendor Name": product.vendor.firstName + ' ' + product.vendor.lastName,
+            "Vendor Email": product.vendor.email
+          };
+          productsToExport.push(productObject);
+        });
+        var xls = json2xls(productsToExport);
+        fs.writeFileSync('uploads/export-products/products.xlsx', xls, 'binary');
+        var file = __dirname + '/../../uploads/export-products/products.xlsx';
+        res.download(file, () => {
+          fs.unlink(file);
+        });
+      });
+    }
+
   },
 
   deleteProduct: (req, res) => {

@@ -98,7 +98,6 @@ module.exports = {
   },
 
   bulkVendorUpload: (req, res) => {
-
     convertExcel(req.file.path, undefined, undefined, (err, success) => {
       if (err) {
         return res.status(500).json(err);
@@ -129,8 +128,8 @@ module.exports = {
         function (err, results) {
           const response = {
             status: 200,
-            message: "Everything's Fine",
-            incorrectRowIndex: results
+            message: "Everything's Fine.",
+            incorrectRowIndex: results[0]
           };
           res.json(response);
           fs.unlink(req.file.path);
