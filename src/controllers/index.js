@@ -8,48 +8,48 @@ const multer = require('multer');
 const upload = multer({ dest: 'uploads/vendors' });
 
 // ========== Local Dependencies ============= //
-const Categories = require('../model/Categories');
 
+const userFunctions = require('./UserFunctions');
 const categoryFunctions = require('./CategoriesFunctions');
-
 const vendorFunctions = require('./VendorsFunctions');
-
 const productsFunctions = require('./ProductsFunctions.js');
+
+const config = require('../config');
 
 // ========== Setting Up Middlewares ============= //
 
 // ========== Auth Route to get JWT token ============= //
-// router.post('/authenticate', dbOperations.authenticateUser);
+router.post('/authenticate', userFunctions.authenticateUser);
 
 // ========== JWT check for All Routes ============= //
-// router.use((req, res, next) => {
+router.use((req, res, next) => {
 
-//   var token = req.body.token || req.query.token || req.headers['x-access-token'];
+  var token = req.body.token || req.query.token || req.headers['x-access-token'];
 
-//   if (token) {
+  if (token) {
 
-//     jwt.verify(token, config.jwtSecret, (err, decoded) => {
-//       if (err) {
-//         return res.json(
-//           {
-//             success: false,
-//             message: 'Failed to authenticate token.'
-//           }
-//         );
-//       } else {
-//         req.decoded = decoded;
-//         next();
-//       }
-//     });
+    jwt.verify(token, config.jwtSecret, (err, decoded) => {
+      if (err) {
+        return res.json(
+          {
+            success: false,
+            message: 'Failed to authenticate token.'
+          }
+        );
+      } else {
+        req.decoded = decoded;
+        next();
+      }
+    });
 
-//   } else {
-//     return res.status(403).send({
-//       success: false,
-//       message: 'No token provided.'
-//     });
+  } else {
+    return res.status(403).send({
+      success: false,
+      message: 'No token provided.'
+    });
 
-//   }
-// });
+  }
+});
 
 
 // ========== All API Routes Below ============= //
@@ -57,6 +57,18 @@ const productsFunctions = require('./ProductsFunctions.js');
 router.get('/', (req, res) => {
   res.status(200).json('API server is Running Fine!!!');
 });
+
+//  ==  Users Routes
+
+router.get('/users', userFunctions.getAllUsers);
+
+router.get('/user/:id', userFunctions.getSingleUser);
+
+router.post('/user', userFunctions.addAUser);
+
+router.post('/updateUser/:id', userFunctions.updateAUser);
+
+router.get('/deleteUser/:id', userFunctions.deleteAUser);
 
 //  ==  Categoties Routes
 
