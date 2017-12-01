@@ -1,4 +1,4 @@
-// ========== Global Dependencies ============ // 
+// ========== Global Dependencies ============ //
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
@@ -12,6 +12,7 @@ const helmet = require('helmet');
 const session = require('express-session');
 const path = require('path');
 const validator = require('express-validator');
+const request = require('request');
 
 // ========== Local Dependencies ============= //
 const config = require('./src/config');
@@ -63,7 +64,7 @@ mongoose.connection.on('disconnected', function () {
   console.log('Mongoose connection disconnected');
 });
 
-// If the Node process ends, close the Mongoose connection 
+// If the Node process ends, close the Mongoose connection
 process.on('SIGINT', function () {
   mongoose.connection.close(function () {
     console.log('Mongoose connection disconnected through app termination');
@@ -77,6 +78,12 @@ app.use('/api', routes );
 
 // ========== Home Page Routing ============= //
 app.get('/', function (req, res) {
+
+  request('https://merchandise-panel-back-end.herokuapp.com/api', function (error, response, body) {
+    // console.log('error:', error); // Print the error if one occurred
+    // console.log('statusCode:', response); // Print the response status code if a response was received
+    console.log('body:', body); // Print the HTML for the Google homepage.
+  });
   res.json('Node JS is working Fine !!!');
 });
 
